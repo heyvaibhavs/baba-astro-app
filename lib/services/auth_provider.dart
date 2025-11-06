@@ -74,6 +74,7 @@ class AuthProvider with ChangeNotifier {
             "id": "690c362126b367da9dadf5fd",
             "email": "heyvaibhavs@gmail.com",
             "firebaseUid": "9RCGRH6N8rT5jtGTkKRHDU1p6hi1",
+            "phoneNumber": "9876543210",
             "profile": {
               "firstName": "Vaibhav",
               "lastName": "Shrivastava",
@@ -261,6 +262,7 @@ class AuthProvider with ChangeNotifier {
     required String name,
     required int age,
     required String city,
+    required String phoneNumber,
   }) async {
     if (_token == null) {
       _setError('Not authenticated');
@@ -271,7 +273,12 @@ class AuthProvider with ChangeNotifier {
     _clearError();
 
     try {
-      final request = OnboardingRequest(name: name, age: age, city: city);
+      final request = OnboardingRequest(
+        name: name,
+        age: age,
+        city: city,
+        phoneNumber: phoneNumber,
+      );
 
       final apiService = ApiService();
       final response = await apiService.submitOnboarding(request, _token!);

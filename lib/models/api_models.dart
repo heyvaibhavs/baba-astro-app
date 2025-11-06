@@ -54,15 +54,17 @@ class OnboardingRequest {
   final String name;
   final int age;
   final String city;
+  final String phoneNumber;
 
   const OnboardingRequest({
     required this.name,
     required this.age,
     required this.city,
+    required this.phoneNumber,
   });
 
   Map<String, dynamic> toJson() {
-    return {'name': name, 'age': age, 'city': city};
+    return {'name': name, 'age': age, 'city': city, 'phoneNumber': phoneNumber};
   }
 }
 

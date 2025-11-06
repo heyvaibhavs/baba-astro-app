@@ -5,6 +5,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../constants/app_constants.dart';
 import '../services/auth_provider.dart';
+import '../services/cities_service.dart';
 import '../widgets/gradient_button.dart';
 import 'home_screen.dart';
 
@@ -21,8 +22,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   String? _selectedCity;
+  List<String> _cities = [];
+  bool _isLoadingCities = true;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -31,6 +35,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   void initState() {
     super.initState();
     _initializeAnimations();
+    _loadCities();
   }
 
   void _initializeAnimations() {
@@ -54,8 +59,29 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _animationController.forward();
   }
 
+  Future<void> _loadCities() async {
+    final cities = await CitiesService.loadCities();
+    setState(() {
+      _cities = cities;
+      _isLoadingCities = false;
+    });
+  }
+
   Future<void> _submitOnboarding() async {
     if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_selectedCity == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please select a city',
+            style: TextStyle(color: AppColors.textPrimary),
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
       return;
     }
 
@@ -65,6 +91,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       name: _nameController.text.trim(),
       age: int.parse(_ageController.text.trim()),
       city: _selectedCity!,
+      phoneNumber: _phoneController.text.trim(),
     );
 
     if (success && mounted) {
@@ -116,51 +143,112 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     return null;
   }
 
+  String? _validatePhoneNumber(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Phone number is required';
+    }
+
+    // Remove any spaces or special characters
+    final cleanNumber = value.replaceAll(RegExp(r'[^\d]'), '');
+
+    if (cleanNumber.length != 10) {
+      return 'Phone number must be 10 digits';
+    }
+
+    return null;
+  }
+
   void _showCityPicker() {
+    String searchQuery = '';
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      isScrollControlled: true,
       builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.6,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.textHint,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final filteredCities = CitiesService.searchCities(
+              _cities,
+              searchQuery,
+            );
+
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.7,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.textHint,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('Select Your City', style: AppTextStyles.h3),
+                  const SizedBox(height: 16),
+
+                  // Search field
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search city...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      setModalState(() {
+                        searchQuery = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Cities list
+                  Expanded(
+                    child: _isLoadingCities
+                        ? const Center(child: CircularProgressIndicator())
+                        : filteredCities.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No cities found',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: filteredCities.length,
+                            itemBuilder: (context, index) {
+                              final city = filteredCities[index];
+                              return ListTile(
+                                title: Text(
+                                  city,
+                                  style: AppTextStyles.bodyLarge,
+                                ),
+                                onTap: () {
+                                  setState(() {
+                                    _selectedCity = city;
+                                  });
+                                  Navigator.pop(context);
+                                },
+                                selected: _selectedCity == city,
+                                selectedTileColor: AppColors.primary
+                                    .withOpacity(0.1),
+                              );
+                            },
+                          ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              Text('Select Your City', style: AppTextStyles.h3),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: AppConstants.cities.length,
-                  itemBuilder: (context, index) {
-                    final city = AppConstants.cities[index];
-                    return ListTile(
-                      title: Text(city, style: AppTextStyles.bodyLarge),
-                      onTap: () {
-                        setState(() {
-                          _selectedCity = city;
-                        });
-                        Navigator.pop(context);
-                      },
-                      selected: _selectedCity == city,
-                      selectedTileColor: AppColors.primary.withOpacity(0.1),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -170,6 +258,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   void dispose() {
     _nameController.dispose();
     _ageController.dispose();
+    _phoneController.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -251,6 +340,28 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
                                     LengthLimitingTextInputFormatter(3),
+                                  ],
+                                  textInputAction: TextInputAction.next,
+                                ),
+                                const SizedBox(height: 24),
+
+                                // Phone Number field
+                                Text(
+                                  'Phone Number',
+                                  style: AppTextStyles.label,
+                                ),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _phoneController,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter your phone number',
+                                    prefixIcon: Icon(Icons.phone_outlined),
+                                  ),
+                                  validator: _validatePhoneNumber,
+                                  keyboardType: TextInputType.phone,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    LengthLimitingTextInputFormatter(10),
                                   ],
                                   textInputAction: TextInputAction.done,
                                 ),

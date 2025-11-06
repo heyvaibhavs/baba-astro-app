@@ -6,6 +6,7 @@ class User {
   final String id;
   final String email;
   final String firebaseUid;
+  final String phoneNumber;
   final UserProfile profile;
   final UserSubscription subscription;
   final bool isOnboarded;
@@ -16,6 +17,7 @@ class User {
     required this.id,
     required this.email,
     required this.firebaseUid,
+    this.phoneNumber = '',
     required this.profile,
     required this.subscription,
     required this.isOnboarded,
@@ -28,6 +30,7 @@ class User {
       id: json['id'] ?? '',
       email: json['email'] ?? '',
       firebaseUid: json['firebaseUid'] ?? '',
+      phoneNumber: json['phoneNumber']?.toString() ?? '',
       profile: UserProfile.fromJson(json['profile'] ?? {}),
       subscription: UserSubscription.fromJson(json['subscription'] ?? {}),
       isOnboarded: json['isOnboarded'] ?? false,
@@ -41,6 +44,7 @@ class User {
       'id': id,
       'email': email,
       'firebaseUid': firebaseUid,
+      'phoneNumber': phoneNumber,
       'profile': profile.toJson(),
       'subscription': subscription.toJson(),
       'isOnboarded': isOnboarded,
@@ -53,6 +57,7 @@ class User {
     String? id,
     String? email,
     String? firebaseUid,
+    String? phoneNumber,
     UserProfile? profile,
     UserSubscription? subscription,
     bool? isOnboarded,
@@ -63,6 +68,7 @@ class User {
       id: id ?? this.id,
       email: email ?? this.email,
       firebaseUid: firebaseUid ?? this.firebaseUid,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       profile: profile ?? this.profile,
       subscription: subscription ?? this.subscription,
       isOnboarded: isOnboarded ?? this.isOnboarded,

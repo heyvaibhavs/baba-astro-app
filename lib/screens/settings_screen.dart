@@ -145,7 +145,6 @@ class SettingsScreen extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                const SizedBox(height: 4),
                                 Text(
                                   user?.email ?? '',
                                   style: AppTextStyles.bodyMedium.copyWith(
@@ -154,7 +153,30 @@ class SettingsScreen extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
+                                const SizedBox(height: 4),
+                                if (user?.phoneNumber.isNotEmpty == true)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 4),
+                                    child: Row(
+                                      children: [
+                                        // Icon(
+                                        //   Icons.phone,
+                                        //   size: 14,
+                                        //   color: AppColors.textSecondary,
+                                        // ),
+                                        // const SizedBox(width: 6),
+                                        Text(
+                                          user!.phoneNumber,
+                                          style: AppTextStyles.bodySmall
+                                              .copyWith(
+                                                color: AppColors.textSecondary,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 const SizedBox(height: 8),
+
                                 // Premium Badge
                                 Container(
                                   padding: const EdgeInsets.symmetric(

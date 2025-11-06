@@ -9,6 +9,7 @@ class UserProfile {
   final String bio;
   final String city;
   final String? gender;
+  final String phoneNumber;
 
   const UserProfile({
     required this.firstName,
@@ -20,6 +21,7 @@ class UserProfile {
     required this.bio,
     required this.city,
     this.gender,
+    this.phoneNumber = '',
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -33,6 +35,7 @@ class UserProfile {
       bio: json['bio'] ?? '',
       city: json['city'] ?? '',
       gender: json['gender'],
+      phoneNumber: json['phoneNumber'] ?? '',
     );
   }
 
@@ -47,6 +50,7 @@ class UserProfile {
       'bio': bio,
       'city': city,
       'gender': gender,
+      'phoneNumber': phoneNumber,
     };
   }
 
@@ -60,6 +64,7 @@ class UserProfile {
     String? bio,
     String? city,
     String? gender,
+    String? phoneNumber,
   }) {
     return UserProfile(
       firstName: firstName ?? this.firstName,
@@ -71,6 +76,7 @@ class UserProfile {
       bio: bio ?? this.bio,
       city: city ?? this.city,
       gender: gender ?? this.gender,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
     );
   }
 }

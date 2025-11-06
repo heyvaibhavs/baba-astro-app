@@ -11,6 +11,7 @@ class MockApiService {
       id: 'mock_user_id_123',
       email: email,
       firebaseUid: 'mock_firebase_uid_123',
+      phoneNumber: '',
       profile: UserProfile(
         firstName: name.split(' ').first,
         lastName: name.split(' ').length > 1 ? name.split(' ').last : '',
@@ -21,6 +22,7 @@ class MockApiService {
         bio: '',
         city: '',
         gender: null,
+        phoneNumber: '',
       ),
       subscription: const UserSubscription(
         plan: 'free',
@@ -53,6 +55,7 @@ class MockApiService {
     String name,
     int age,
     String city,
+    String phoneNumber,
   ) {
     final updatedProfile = user.profile.copyWith(
       name: name,
@@ -63,6 +66,7 @@ class MockApiService {
 
     final updatedUser = user.copyWith(
       profile: updatedProfile,
+      phoneNumber: phoneNumber,
       isOnboarded: true,
     );
 
@@ -72,6 +76,23 @@ class MockApiService {
       success: true,
       message: 'Mock onboarding completed successfully',
       data: onboardingData,
+      timestamp: DateTime.now().toIso8601String(),
+    );
+  }
+
+  /// Mock user config response
+  static UserConfigResponse createMockUserConfigResponse(User user) {
+    final userConfigData = UserConfigData(
+      user: user,
+      isPremium: user.isPremium,
+      subscription: user.subscription,
+      generatedAt: DateTime.now().toIso8601String(),
+    );
+
+    return UserConfigResponse(
+      success: true,
+      message: 'Mock user config fetched successfully',
+      data: userConfigData,
       timestamp: DateTime.now().toIso8601String(),
     );
   }
