@@ -363,6 +363,28 @@ class ApiException implements Exception {
 
   /// User-friendly error message
   String get userMessage {
+    // Try to parse error message from response body
+    try {
+      final data = jsonDecode(details);
+      if (data is Map && data['message'] != null) {
+        final serverMessage = data['message'].toString();
+
+        // Check for specific error patterns
+        if (serverMessage.toLowerCase().contains('duplicate phone number') ||
+            serverMessage.toLowerCase().contains(
+              'phone number already exists',
+            )) {
+          return 'This phone number is already registered. Please use a different number or contact support.';
+        }
+
+        // Return server message if available
+        return serverMessage;
+      }
+    } catch (e) {
+      // If parsing fails, fall through to default messages
+    }
+
+    // Fallback to status code-based messages
     switch (statusCode) {
       case 400:
         return 'Invalid request. Please check your input.';

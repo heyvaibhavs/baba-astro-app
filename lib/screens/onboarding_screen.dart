@@ -23,10 +23,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _phoneFocusNode = FocusNode();
 
   String? _selectedCity;
   List<String> _cities = [];
   bool _isLoadingCities = true;
+  String? _phoneErrorMessage;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -85,6 +87,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       return;
     }
 
+    // Clear previous phone error
+    setState(() {
+      _phoneErrorMessage = null;
+    });
+
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     final success = await authProvider.submitOnboarding(
@@ -101,6 +108,18 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } else if (authProvider.error != null && mounted) {
+      // Check if the error is about duplicate phone number
+      final isDuplicatePhone =
+          authProvider.error!.toLowerCase().contains('duplicate phone') ||
+          authProvider.error!.toLowerCase().contains('already registered');
+
+      if (isDuplicatePhone) {
+        setState(() {
+          _phoneErrorMessage = authProvider.error;
+        });
+        _phoneFocusNode.requestFocus();
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -108,6 +127,21 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             style: TextStyle(color: AppColors.textPrimary),
           ),
           backgroundColor: AppColors.error,
+          duration: Duration(seconds: isDuplicatePhone ? 6 : 4),
+          action: isDuplicatePhone
+              ? SnackBarAction(
+                  label: 'Change Number',
+                  textColor: AppColors.starGold,
+                  onPressed: () {
+                    // Focus on phone number field
+                    _phoneFocusNode.requestFocus();
+                    _phoneController.selection = TextSelection(
+                      baseOffset: 0,
+                      extentOffset: _phoneController.text.length,
+                    );
+                  },
+                )
+              : null,
         ),
       );
     }
@@ -259,6 +293,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _nameController.dispose();
     _ageController.dispose();
     _phoneController.dispose();
+    _phoneFocusNode.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -353,9 +388,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                 const SizedBox(height: 8),
                                 TextFormField(
                                   controller: _phoneController,
-                                  decoration: const InputDecoration(
+                                  focusNode: _phoneFocusNode,
+                                  decoration: InputDecoration(
                                     hintText: 'Enter your phone number',
                                     prefixIcon: Icon(Icons.phone_outlined),
+                                    errorText: _phoneErrorMessage,
+                                    errorMaxLines: 3,
                                   ),
                                   validator: _validatePhoneNumber,
                                   keyboardType: TextInputType.phone,
@@ -364,6 +402,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                     LengthLimitingTextInputFormatter(10),
                                   ],
                                   textInputAction: TextInputAction.done,
+                                  onChanged: (value) {
+                                    // Clear error message when user starts typing
+                                    if (_phoneErrorMessage != null) {
+                                      setState(() {
+                                        _phoneErrorMessage = null;
+                                      });
+                                    }
+                                  },
                                 ),
                                 const SizedBox(height: 24),
 

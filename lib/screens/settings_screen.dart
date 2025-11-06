@@ -5,6 +5,7 @@ import '../constants/app_text_styles.dart';
 import '../constants/app_constants.dart';
 import '../services/auth_provider.dart';
 import 'login_screen.dart';
+import 'web_view_screen.dart';
 
 /// Settings screen with profile card and various options
 class SettingsScreen extends StatelessWidget {
@@ -326,7 +327,17 @@ class SettingsScreen extends StatelessWidget {
                   icon: Icons.privacy_tip_outlined,
                   title: 'Privacy Policy',
                   subtitle: 'Read our privacy policy',
-                  onTap: () => _showComingSoon(context, 'Privacy Policy'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WebViewScreen(
+                          url: 'https://gumbotech.in/Baba-app-privacy-policy',
+                          title: 'Privacy Policy',
+                        ),
+                      ),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 8),
@@ -337,7 +348,18 @@ class SettingsScreen extends StatelessWidget {
                   icon: Icons.description_outlined,
                   title: 'Terms & Conditions',
                   subtitle: 'Read our terms and conditions',
-                  onTap: () => _showComingSoon(context, 'Terms & Conditions'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WebViewScreen(
+                          url:
+                              'https://gumbotech.in/Baba-app-terms-and-conditions',
+                          title: 'Terms & Conditions',
+                        ),
+                      ),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 24),
@@ -369,7 +391,18 @@ class SettingsScreen extends StatelessWidget {
                   icon: Icons.delete_outline,
                   title: 'Delete Account',
                   subtitle: 'Permanently delete your account',
-                  onTap: () => _showComingSoon(context, 'Delete Account'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WebViewScreen(
+                          url:
+                              'https://gumbotech.in/Baba-app-account-deletion-policy',
+                          title: 'Account Deletion',
+                        ),
+                      ),
+                    );
+                  },
                   iconColor: AppColors.error,
                   titleColor: AppColors.error,
                 ),

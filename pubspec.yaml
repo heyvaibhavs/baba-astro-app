@@ -53,6 +53,9 @@ dependencies:
   
   # Native splash screen
   flutter_native_splash: ^2.3.10
+  
+  # WebView
+  webview_flutter: ^4.10.0
 
 dev_dependencies:
   flutter_test:
