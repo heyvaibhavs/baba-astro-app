@@ -55,6 +55,92 @@ class AuthProvider with ChangeNotifier {
     developer.log('Auth initialization completed', name: _logTag);
   }
 
+  /// Sign in with test account (for PlayStore testing)
+  Future<bool> signInWithTestAccount() async {
+    developer.log(
+      '🧪 AUTH PROVIDER: Starting test account sign-in',
+      name: _logTag,
+    );
+    _setLoading(true);
+    _clearError();
+
+    try {
+      // Simulated test account data
+      final testUserData = {
+        "success": true,
+        "message": "Google authentication successful",
+        "data": {
+          "user": {
+            "id": "690c362126b367da9dadf5fd",
+            "email": "heyvaibhavs@gmail.com",
+            "firebaseUid": "9RCGRH6N8rT5jtGTkKRHDU1p6hi1",
+            "profile": {
+              "firstName": "Vaibhav",
+              "lastName": "Shrivastava",
+              "name": "Vaibhav Shrivastava",
+              "avatar":
+                  "https://lh3.googleusercontent.com/a/ACg8ocIOl2zqQxdInYoVSpwh6vcI3vuDg0qLWH8QN7I5fGiOSzvSNHw=s96-c",
+              "isComplete": true,
+              "age": 24,
+              "bio": "",
+              "city": "Bangalore",
+              "gender": null,
+            },
+            "subscription": {
+              "plan": "monthly",
+              "isActive": true,
+              "autoRenew": true,
+              "endDate": "2025-12-06T06:38:24.663Z",
+              "startDate": "2025-11-06T06:38:24.688Z",
+            },
+            "isOnboarded": true,
+            "is_premium": true,
+            "isNewUser": false,
+          },
+          "accessToken":
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTBjMzYyMTI2YjM2N2RhOWRhZGY1ZmQiLCJlbWFpbCI6ImhleXZhaWJoYXZzQGdtYWlsLmNvbSIsInN1YnNjcmlwdGlvbiI6ImZyZWUiLCJpYXQiOjE3NjI0MTg0NTQsImV4cCI6MTc2MzAyMzI1NCwiYXVkIjoiYmFiYWFwcC11c2VycyIsImlzcyI6ImJhYmFhcHAtYmFja2VuZCJ9.YkTjkrjaq7r1UgShiOGg1omd9aiP08NCP22aHJEb-NQ",
+          "expiresIn": "7d",
+          "tokenType": "Bearer",
+        },
+        "timestamp": "2025-11-06T08:40:54.982Z",
+      };
+
+      // Parse the test data into User model
+      final authData = testUserData['data'] as Map<String, dynamic>;
+      final userData = authData['user'] as Map<String, dynamic>;
+
+      _token = authData['accessToken'] as String;
+      _user = User.fromJson(userData);
+
+      developer.log('Test account signed in: ${_user!.email}', name: _logTag);
+      developer.log('User is onboarded: ${_user!.isOnboarded}', name: _logTag);
+
+      // Save to storage
+      await StorageService.saveToken(_token!);
+      await StorageService.saveUserData(_user!);
+
+      // Update premium status
+      final isPremium = _user!.isPremium || _user!.subscription.isActive;
+      await StorageService.savePremiumStatus(isPremium);
+      developer.log('Premium status saved: $isPremium', name: _logTag);
+
+      _setLoading(false);
+      developer.log(
+        'Test account sign-in completed successfully',
+        name: _logTag,
+      );
+      return true;
+    } catch (e) {
+      developer.log(
+        'ERROR in test account sign-in: ${e.toString()}',
+        name: _logTag,
+      );
+      _setError('Test login failed. Please try again.');
+      _setLoading(false);
+      return false;
+    }
+  }
+
   /// Sign in with Google
   Future<bool> signInWithGoogle() async {
     developer.log(

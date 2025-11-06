@@ -10,7 +10,7 @@ import '../services/auth_provider.dart';
 import '../widgets/gradient_button.dart';
 import 'onboarding_screen.dart';
 import 'home_screen.dart';
-import 'debug_screen.dart';
+import 'email_login_screen.dart';
 
 /// Login screen with Google Sign-In
 class LoginScreen extends StatefulWidget {
@@ -25,6 +25,7 @@ class _LoginScreenState extends State<LoginScreen>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  int _tapCount = 0;
 
   @override
   void initState() {
@@ -54,6 +55,28 @@ class _LoginScreenState extends State<LoginScreen>
         );
 
     _animationController.forward();
+  }
+
+  void _handleIconTap() {
+    setState(() {
+      _tapCount++;
+    });
+
+    developer.log('Icon tapped: $_tapCount times', name: 'LoginScreen');
+
+    if (_tapCount >= 7) {
+      developer.log('Opening email login screen', name: 'LoginScreen');
+      // Reset counter
+      setState(() {
+        _tapCount = 0;
+      });
+
+      // Navigate to email login screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const EmailLoginScreen()),
+      );
+    }
   }
 
   Future<void> _handleGoogleSignIn() async {
@@ -208,34 +231,37 @@ class _LoginScreenState extends State<LoginScreen>
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 // Astro Logo
-                                Container(
-                                  width: 160,
-                                  height: 160,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppColors.primary,
-                                        AppColors.galaxyPurple,
-                                        AppColors.starGold,
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColors.primary.withOpacity(
-                                          0.3,
-                                        ),
-                                        blurRadius: 20,
-                                        spreadRadius: 5,
+                                GestureDetector(
+                                  onTap: _handleIconTap,
+                                  child: Container(
+                                    width: 160,
+                                    height: 160,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          AppColors.primary,
+                                          AppColors.galaxyPurple,
+                                          AppColors.starGold,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
                                       ),
-                                    ],
-                                  ),
-                                  child: const Icon(
-                                    Icons.auto_awesome,
-                                    size: 80,
-                                    color: AppColors.textPrimary,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.primary.withOpacity(
+                                            0.3,
+                                          ),
+                                          blurRadius: 20,
+                                          spreadRadius: 5,
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Icon(
+                                      Icons.auto_awesome,
+                                      size: 80,
+                                      color: AppColors.textPrimary,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 32),

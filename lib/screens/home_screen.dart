@@ -145,6 +145,7 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Disable back button
         title: const Text('Baba App'),
         backgroundColor: AppColors.surface,
         actions: [
