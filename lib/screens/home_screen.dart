@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen>
           SnackBar(
             content: Text(
               '$featureName coming soon!',
-              style: TextStyle(color: AppColors.background),
+              style: TextStyle(color: AppColors.textPrimary),
             ),
             backgroundColor: AppColors.primary,
           ),

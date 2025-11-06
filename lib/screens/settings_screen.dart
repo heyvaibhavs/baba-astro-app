@@ -62,7 +62,7 @@ class SettingsScreen extends StatelessWidget {
       SnackBar(
         content: Text(
           '$feature - Coming Soon!',
-          style: TextStyle(color: AppColors.background),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         backgroundColor: AppColors.primary,
         behavior: SnackBarBehavior.floating,
@@ -328,6 +328,18 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
+
+                // Manage Subscription
+                _buildSettingsTile(
+                  context: context,
+                  icon: Icons.card_membership_outlined,
+                  title: 'Manage Subscription',
+                  subtitle: 'View and manage your subscription plan',
+                  onTap: () => _showComingSoon(context, 'Manage Subscription'),
+                  iconColor: AppColors.starGold,
+                ),
+
+                const SizedBox(height: 8),
 
                 // Delete Account
                 _buildSettingsTile(
