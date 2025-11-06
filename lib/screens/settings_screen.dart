@@ -1,0 +1,363 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_text_styles.dart';
+import '../constants/app_constants.dart';
+import '../services/auth_provider.dart';
+import 'login_screen.dart';
+
+/// Settings screen with profile card and various options
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
+  Future<void> _handleLogout(BuildContext context) async {
+    // Show confirmation dialog
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.cardBackground,
+        title: Text('Logout', style: AppTextStyles.h3),
+        content: Text(
+          'Are you sure you want to logout?',
+          style: AppTextStyles.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancel',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              'Logout',
+              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout == true && context.mounted) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.signOut();
+
+      if (context.mounted) {
+        // Clear entire navigation stack and go to login screen
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false, // Remove all previous routes
+        );
+      }
+    }
+  }
+
+  void _showComingSoon(BuildContext context, String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '$feature - Coming Soon!',
+          style: TextStyle(color: AppColors.background),
+        ),
+        backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Settings'),
+        backgroundColor: AppColors.surface,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppConstants.defaultPadding),
+        child: Consumer<AuthProvider>(
+          builder: (context, authProvider, child) {
+            final user = authProvider.user;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile Card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppConstants.largePadding),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primary.withOpacity(0.1),
+                        AppColors.galaxyPurple.withOpacity(0.1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: AppColors.primary.withOpacity(0.3),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor: AppColors.starGold,
+                            backgroundImage:
+                                user?.profile.avatar.isNotEmpty == true
+                                ? NetworkImage(user!.profile.avatar)
+                                : null,
+                            child: user?.profile.avatar.isEmpty != false
+                                ? Text(
+                                    user?.profile.name.isNotEmpty == true
+                                        ? user!.profile.name[0].toUpperCase()
+                                        : 'U',
+                                    style: AppTextStyles.h3.copyWith(
+                                      color: AppColors.background,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  user?.profile.name ?? 'User',
+                                  style: AppTextStyles.h3.copyWith(
+                                    color: AppColors.starGold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  user?.email ?? '',
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Edit button
+                          IconButton(
+                            icon: Icon(Icons.edit, color: AppColors.starGold),
+                            onPressed: () =>
+                                _showComingSoon(context, 'Edit Profile'),
+                            tooltip: 'Edit Profile',
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.cardBackground.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              color: AppColors.starGold,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              user?.profile.city ?? 'Location not set',
+                              style: AppTextStyles.bodyMedium,
+                            ),
+                            const Spacer(),
+                            Icon(
+                              Icons.cake,
+                              color: AppColors.starGold,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${user?.profile.age ?? 0} years',
+                              style: AppTextStyles.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Settings Options
+                Text(
+                  'General',
+                  style: AppTextStyles.h3.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Notifications
+                _buildSettingsTile(
+                  context: context,
+                  icon: Icons.notifications_outlined,
+                  title: 'Notifications',
+                  subtitle: 'Manage your notification preferences',
+                  onTap: () => _showComingSoon(context, 'Notifications'),
+                ),
+
+                const SizedBox(height: 8),
+
+                // About App
+                _buildSettingsTile(
+                  context: context,
+                  icon: Icons.info_outline,
+                  title: 'About App',
+                  subtitle: 'Learn more about Baba App',
+                  onTap: () => _showComingSoon(context, 'About App'),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Help & Support
+                _buildSettingsTile(
+                  context: context,
+                  icon: Icons.help_outline,
+                  title: 'Help & Support',
+                  subtitle: 'Get help or contact support',
+                  onTap: () => _showComingSoon(context, 'Help & Support'),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Legal Section
+                Text(
+                  'Legal',
+                  style: AppTextStyles.h3.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Privacy Policy
+                _buildSettingsTile(
+                  context: context,
+                  icon: Icons.privacy_tip_outlined,
+                  title: 'Privacy Policy',
+                  subtitle: 'Read our privacy policy',
+                  onTap: () => _showComingSoon(context, 'Privacy Policy'),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Terms & Conditions
+                _buildSettingsTile(
+                  context: context,
+                  icon: Icons.description_outlined,
+                  title: 'Terms & Conditions',
+                  subtitle: 'Read our terms and conditions',
+                  onTap: () => _showComingSoon(context, 'Terms & Conditions'),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Account Section
+                Text(
+                  'Account',
+                  style: AppTextStyles.h3.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Delete Account
+                _buildSettingsTile(
+                  context: context,
+                  icon: Icons.delete_outline,
+                  title: 'Delete Account',
+                  subtitle: 'Permanently delete your account',
+                  onTap: () => _showComingSoon(context, 'Delete Account'),
+                  iconColor: AppColors.error,
+                  titleColor: AppColors.error,
+                ),
+
+                const SizedBox(height: 8),
+
+                // Logout
+                _buildSettingsTile(
+                  context: context,
+                  icon: Icons.logout,
+                  title: 'Logout',
+                  subtitle: 'Sign out of your account',
+                  onTap: () => _handleLogout(context),
+                  iconColor: AppColors.error,
+                  titleColor: AppColors.error,
+                ),
+
+                const SizedBox(height: 24),
+
+                // App Version (centered at bottom)
+                Center(
+                  child: Text(
+                    'Version 1.0.0',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    Color? iconColor,
+    Color? titleColor,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: iconColor ?? AppColors.starGold),
+        title: Text(
+          title,
+          style: AppTextStyles.h4.copyWith(
+            color: titleColor ?? AppColors.textPrimary,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        trailing: Icon(Icons.chevron_right, color: AppColors.textSecondary),
+        onTap: onTap,
+      ),
+    );
+  }
+}
