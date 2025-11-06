@@ -142,12 +142,58 @@ class SettingsScreen extends StatelessWidget {
                                   style: AppTextStyles.h3.copyWith(
                                     color: AppColors.starGold,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   user?.email ?? '',
                                   style: AppTextStyles.bodyMedium.copyWith(
                                     color: AppColors.textSecondary,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 8),
+                                // Premium Badge
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: (user?.isPremium ?? false)
+                                        ? AppColors.starGold
+                                        : AppColors.textSecondary.withOpacity(
+                                            0.3,
+                                          ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        (user?.isPremium ?? false)
+                                            ? Icons.workspace_premium
+                                            : Icons.person_outline,
+                                        size: 14,
+                                        color: (user?.isPremium ?? false)
+                                            ? AppColors.background
+                                            : AppColors.textSecondary,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        (user?.isPremium ?? false)
+                                            ? 'Premium'
+                                            : 'Free User',
+                                        style: AppTextStyles.caption.copyWith(
+                                          color: (user?.isPremium ?? false)
+                                              ? AppColors.background
+                                              : AppColors.textSecondary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
