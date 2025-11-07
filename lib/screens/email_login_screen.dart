@@ -322,47 +322,47 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                 const SizedBox(height: 24),
 
                 // Info text
-                Container(
-                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(
-                      AppConstants.borderRadius,
-                    ),
-                    border: Border.all(
-                      color: AppColors.primary.withOpacity(0.3),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.info_outline,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Test Credentials',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Email: babaApp@test.com\nPassword: Vaibhav@123',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // Container(
+                //   padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                //   decoration: BoxDecoration(
+                //     color: AppColors.primary.withOpacity(0.1),
+                //     borderRadius: BorderRadius.circular(
+                //       AppConstants.borderRadius,
+                //     ),
+                //     border: Border.all(
+                //       color: AppColors.primary.withOpacity(0.3),
+                //     ),
+                //   ),
+                //   child: Column(
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: [
+                //       Row(
+                //         children: [
+                //           const Icon(
+                //             Icons.info_outline,
+                //             color: AppColors.primary,
+                //             size: 20,
+                //           ),
+                //           const SizedBox(width: 8),
+                //           Text(
+                //             'Test Credentials',
+                //             style: AppTextStyles.bodyMedium.copyWith(
+                //               color: AppColors.primary,
+                //               fontWeight: FontWeight.bold,
+                //             ),
+                //           ),
+                //         ],
+                //       ),
+                //       const SizedBox(height: 8),
+                //       Text(
+                //         'Email: babaApp@test.com\nPassword: Vaibhav@123',
+                //         style: AppTextStyles.bodySmall.copyWith(
+                //           color: AppColors.textSecondary,
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
               ],
             ),
           ),
