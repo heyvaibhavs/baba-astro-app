@@ -238,15 +238,6 @@ class _LoginScreenState extends State<LoginScreen>
                                     height: 160,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          AppColors.primary,
-                                          AppColors.galaxyPurple,
-                                          AppColors.starGold,
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
                                       boxShadow: [
                                         BoxShadow(
                                           color: AppColors.primary.withOpacity(
@@ -257,10 +248,14 @@ class _LoginScreenState extends State<LoginScreen>
                                         ),
                                       ],
                                     ),
-                                    child: const Icon(
-                                      Icons.auto_awesome,
-                                      size: 80,
-                                      color: AppColors.textPrimary,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(80),
+                                      child: Image.asset(
+                                        'assets/images/ig_transparent_logo.png',
+                                        width: 160,
+                                        height: 160,
+                                        fit: BoxFit.contain,
+                                      ),
                                     ),
                                   ),
                                 ),

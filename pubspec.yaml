@@ -119,18 +119,18 @@ flutter:
 # Native Splash Screen Configuration
 flutter_native_splash:
   color: "#1a1a2e"
-  # image: "assets/images/logo.png" # Add your logo here
+  image: "assets/images/ig_transparent_logo.png" # Add your logo here
   android_12:
-    # image: "assets/images/logo.png" # Add your logo here
+    image: "assets/images/ig_transparent_logo.png" # Add your logo here
     color: "#1a1a2e"
 
 # App Icon Configuration
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/images/ig_logo_baba.png
+  image_path: assets/images/ig_logo.jpg
   adaptive_icon_background: "#FFFFFF"
   # If you have a foreground-only asset, set it here; otherwise the generator will
   # derive it from image_path with padding.
-  # adaptive_icon_foreground: assets/images/ig_logo_baba.png
+  # adaptive_icon_foreground: assets/images/ig_logo.jpg
   remove_alpha_ios: true
