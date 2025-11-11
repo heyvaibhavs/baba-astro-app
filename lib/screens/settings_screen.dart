@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../constants/app_constants.dart';
 import '../services/auth_provider.dart';
+import '../services/storage_service.dart';
 import 'login_screen.dart';
 import 'web_view_screen.dart';
+import 'notifications_screen.dart';
+import 'about_app_screen.dart';
 
 /// Settings screen with profile card and various options
 class SettingsScreen extends StatelessWidget {
@@ -69,6 +73,128 @@ class SettingsScreen extends StatelessWidget {
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+
+  void _showHelpDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.help_outline, color: AppColors.starGold, size: 24),
+            const SizedBox(width: 8),
+            Text(
+              'Help & Support',
+              style: AppTextStyles.h3.copyWith(color: AppColors.starGold),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Need assistance? Contact our support team through any of these channels:',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // WhatsApp
+            _buildContactOption(
+              icon: Icons.message,
+              title: 'WhatsApp',
+              subtitle: 'Chat with us on WhatsApp',
+              color: const Color(0xFF25D366),
+              onTap: () {
+                _launchUrl('https://wa.me/918618187668');
+                Navigator.pop(context);
+              },
+            ),
+            const SizedBox(height: 12),
+
+            // Phone Call
+            _buildContactOption(
+              icon: Icons.phone,
+              title: 'Call Us',
+              subtitle: '8618187668',
+              color: AppColors.primary,
+              onTap: () {
+                _launchUrl('tel:8618187668');
+                Navigator.pop(context);
+              },
+            ),
+            const SizedBox(height: 12),
+
+            // Email
+            _buildContactOption(
+              icon: Icons.email,
+              title: 'Email',
+              subtitle: 'babaapp@gumbotech.in',
+              color: AppColors.starGold,
+              onTap: () {
+                _launchUrl('mailto:babaapp@gumbotech.in');
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Close',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContactOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: color, size: 24),
+        title: Text(
+          title,
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        trailing: Icon(Icons.arrow_forward_ios, color: color, size: 16),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   @override
@@ -270,7 +396,7 @@ class SettingsScreen extends StatelessWidget {
 
                 const SizedBox(height: 32),
 
-                // Settings Options
+                // General Settings
                 Text(
                   'General',
                   style: AppTextStyles.h3.copyWith(
@@ -285,7 +411,14 @@ class SettingsScreen extends StatelessWidget {
                   icon: Icons.notifications_outlined,
                   title: 'Notifications',
                   subtitle: 'Manage your notification preferences',
-                  onTap: () => _showComingSoon(context, 'Notifications'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationsScreen(),
+                      ),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 8),
@@ -296,7 +429,12 @@ class SettingsScreen extends StatelessWidget {
                   icon: Icons.info_outline,
                   title: 'About App',
                   subtitle: 'Learn more about Baba App',
-                  onTap: () => _showComingSoon(context, 'About App'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AboutAppScreen()),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 8),
@@ -307,7 +445,7 @@ class SettingsScreen extends StatelessWidget {
                   icon: Icons.help_outline,
                   title: 'Help & Support',
                   subtitle: 'Get help or contact support',
-                  onTap: () => _showComingSoon(context, 'Help & Support'),
+                  onTap: () => _showHelpDialog(context),
                 ),
 
                 const SizedBox(height: 24),
@@ -362,6 +500,28 @@ class SettingsScreen extends StatelessWidget {
                   },
                 ),
 
+                const SizedBox(height: 8),
+
+                // Refund Policy
+                _buildSettingsTile(
+                  context: context,
+                  icon: Icons.policy_outlined,
+                  title: 'Refund Policy',
+                  subtitle: 'Read our refund and cancellation policy',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WebViewScreen(
+                          url:
+                              'https://gumbotech.in/Baba-app-refund-cancellation-policy',
+                          title: 'Refund Policy',
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
                 const SizedBox(height: 24),
 
                 // Account Section
@@ -373,17 +533,22 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
 
-                // Manage Subscription
-                _buildSettingsTile(
-                  context: context,
-                  icon: Icons.card_membership_outlined,
-                  title: 'Manage Subscription',
-                  subtitle: 'View and manage your subscription plan',
-                  onTap: () => _showComingSoon(context, 'Manage Subscription'),
-                  iconColor: AppColors.starGold,
-                ),
-
-                const SizedBox(height: 8),
+                // Manage Subscription - Show only if user is premium
+                if (StorageService.getPremiumStatus())
+                  Column(
+                    children: [
+                      _buildSettingsTile(
+                        context: context,
+                        icon: Icons.card_membership_outlined,
+                        title: 'Manage Subscription',
+                        subtitle: 'View and manage your subscription plan',
+                        onTap: () =>
+                            _showComingSoon(context, 'Manage Subscription'),
+                        iconColor: AppColors.starGold,
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
 
                 // Delete Account
                 _buildSettingsTile(

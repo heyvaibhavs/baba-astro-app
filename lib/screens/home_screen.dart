@@ -8,6 +8,10 @@ import '../services/auth_provider.dart';
 import '../services/storage_service.dart';
 import 'subscription_gate.dart';
 import 'settings_screen.dart';
+import 'daily_horoscope_screen.dart';
+import 'birth_chart_screen.dart';
+import 'compatibility_screen.dart';
+import 'insights_screen.dart';
 
 /// Home screen for onboarded users
 class HomeScreen extends StatefulWidget {
@@ -112,15 +116,35 @@ class _HomeScreenState extends State<HomeScreen>
       // If user purchased, check again and navigate to feature
       if (result == true) {
         print('✅ User purchased subscription - navigating to $featureName');
-        // TODO: Navigate to the actual feature screen
+        _navigateToFeature(featureName);
       } else {
         print('❌ User cancelled subscription');
       }
     } else {
       print('✅ User is premium - navigating to $featureName');
-      // TODO: Navigate to the actual feature screen
-      // For now, just show a message
-      if (mounted) {
+      _navigateToFeature(featureName);
+    }
+  }
+
+  /// Navigate to the specific feature screen
+  void _navigateToFeature(String featureName) {
+    late Widget screen;
+
+    switch (featureName) {
+      case 'Daily Horoscope':
+        screen = const DailyHoroscopeScreen();
+        break;
+      case 'Birth Chart':
+        screen = const BirthChartScreen();
+        break;
+      case 'Compatibility':
+        screen = const CompatibilityScreen();
+        break;
+      case 'Insights':
+        screen = const InsightsScreen();
+        break;
+      default:
+        // Show a fallback message for unknown features
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -130,7 +154,11 @@ class _HomeScreenState extends State<HomeScreen>
             backgroundColor: AppColors.primary,
           ),
         );
-      }
+        return;
+    }
+
+    if (mounted) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
     }
   }
 

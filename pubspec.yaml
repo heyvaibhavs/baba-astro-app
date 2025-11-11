@@ -56,6 +56,12 @@ dependencies:
   
   # WebView
   webview_flutter: ^4.10.0
+  
+  # Date formatting
+  intl: ^0.19.0
+  
+  # URL launcher for external links
+  url_launcher: ^6.2.1
 
 dev_dependencies:
   flutter_test:
