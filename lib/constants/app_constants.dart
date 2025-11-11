@@ -6,7 +6,7 @@ class AppConstants {
 
   // API configuration
   // Local server configuration
-  // static const String baseUrl = 'http://192.168.29.176:3000'; // Local server
+  // static const String baseUrl = 'http://10.253.154.199:3000'; // Local server
   static const String baseUrl = 'https://learner.netaapp.in'; // Production server
   static const String googleAuthEndpoint = '/api/auth/google';
   static const String onboardingEndpoint = '/api/onboarding/submit';

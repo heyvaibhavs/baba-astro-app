@@ -6,7 +6,7 @@ import '../constants/app_text_styles.dart';
 import '../constants/app_constants.dart';
 import '../services/auth_provider.dart';
 import '../services/storage_service.dart';
-import 'subscription_gate.dart';
+import 'subscription_video_screen.dart';
 import 'settings_screen.dart';
 import 'daily_horoscope_screen.dart';
 import 'birth_chart_screen.dart';
@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen>
 
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => const SubscriptionGate(),
+          builder: (_) => const SubscriptionVideoScreen(),
           fullscreenDialog: true,
         ),
       );
@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen>
       // Show subscription gate
       final result = await Navigator.of(context).push<bool>(
         MaterialPageRoute(
-          builder: (_) => const SubscriptionGate(),
+          builder: (_) => const SubscriptionVideoScreen(),
           fullscreenDialog: true,
         ),
       );
