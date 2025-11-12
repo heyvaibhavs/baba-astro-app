@@ -28,6 +28,9 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
   bool _initialized = false;
   String? _videoUrl;
   Map<String, dynamic>? _videoData;
+  
+  // Toggle this to switch between temporary trial plan and API plan
+  static const bool useTemporaryTrialPlan = true;
 
   @override
   void didChangeDependencies() {
@@ -534,6 +537,11 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
       '🎯 Building plans section - Loading: ${subProv.isLoading}, Error: ${subProv.error}, Plans: ${subProv.plans.length}',
     );
 
+    // If using temporary trial plan, show it regardless of API state
+    if (useTemporaryTrialPlan) {
+      return _buildTemporaryTrialPlan();
+    }
+
     if (subProv.isLoading) {
       return const SizedBox(
         height: 250,
@@ -726,6 +734,139 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
                     },
                     child: Text(
                       showTrial ? 'Start Free Trial' : 'Subscribe Now',
+                      style: AppTextStyles.buttonLarge,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Footer
+            Text(
+              'Cancel anytime. Terms apply.',
+              style: AppTextStyles.caption.copyWith(color: AppColors.textHint),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build temporary 1-day trial plan
+  Widget _buildTemporaryTrialPlan() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textSecondary.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Plan card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primary.withOpacity(0.3),
+                    AppColors.galaxyPurple.withOpacity(0.1),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.primary.withOpacity(0.3),
+                  width: 2,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Free Trial Badge
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '1-Day Free Trial',
+                        style: AppTextStyles.h3.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Price
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'INR ',
+                        style: AppTextStyles.h3.copyWith(
+                          color: AppColors.starGold,
+                        ),
+                      ),
+                      Text(
+                        '1',
+                        style: AppTextStyles.h1.copyWith(
+                          color: AppColors.starGold,
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          'INR 99',
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            decoration: TextDecoration.lineThrough,
+                            color: AppColors.textHint,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Duration
+                  Text(
+                    'Valid for 1 Day',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Auto-renews at INR 99/month',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textHint,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Subscribe button
+                  GradientButton(
+                    onPressed: () {
+                      print('💳 Processing payment for: 1-Day Free Trial');
+                      _handleSubscriptionSuccess('1-Day Free Trial');
+                    },
+                    child: Text(
+                      'Subscribe Now',
                       style: AppTextStyles.buttonLarge,
                     ),
                   ),
