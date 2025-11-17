@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../providers/subscription_provider.dart';
@@ -8,6 +9,9 @@ import '../services/auth_provider.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../widgets/gradient_button.dart';
+import '../services/razorpay_service.dart';
+import '../services/storage_service.dart';
+import '../constants/app_constants.dart';
 
 /// New subscription screen with promotional video
 class SubscriptionVideoScreen extends StatefulWidget {
@@ -28,7 +32,8 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
   bool _initialized = false;
   String? _videoUrl;
   Map<String, dynamic>? _videoData;
-  
+  final RazorpayService _razorpayService = RazorpayService();
+
   // Toggle this to switch between temporary trial plan and API plan
   static const bool useTemporaryTrialPlan = true;
 
@@ -46,6 +51,38 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
         );
         if (auth.token != null) {
           print('🎬 Starting subscription and video initialization...');
+          // Initialize Razorpay callbacks
+          _razorpayService.init(
+            onSuccess: (PaymentSuccessResponse res) async {
+              print('✅ Razorpay Success: ${res.paymentId}');
+              // Confirm subscription on server before marking premium
+              final ok = await _confirmSubscriptionOnServer(
+                res.paymentId ?? '',
+              );
+              if (ok) {
+                await _handleSubscriptionSuccess('Premium (₹3)');
+              } else {
+                _videoController?.play();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Unable to activate subscription.'),
+                    ),
+                  );
+                }
+              }
+            },
+            onError: (PaymentFailureResponse res) {
+              print('❌ Razorpay Error: ${res.code} ${res.message}');
+              // Resume the video on failure/close
+              _videoController?.play();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Payment failed. Please try again.')),
+                );
+              }
+            },
+          );
           subProv.fetchPlans(auth.token!);
           _fetchPromotionalVideo(auth.token!);
         } else {
@@ -56,6 +93,44 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
           });
         }
       });
+    }
+  }
+
+  /// Confirm subscription with backend after successful Razorpay payment
+  Future<bool> _confirmSubscriptionOnServer(String paymentId) async {
+    try {
+      if (paymentId.isEmpty) return false;
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final token = auth.token;
+      if (token == null || token.isEmpty) return false;
+
+      final url = Uri.parse('${AppConstants.baseUrl}/api/subscriptions');
+      final body = json.encode({
+        'plan': 'monthly',
+        'force': true,
+        'paymentId': paymentId,
+      });
+
+      final resp = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: body,
+      );
+
+      print('🧾 /subscriptions status: ${resp.statusCode}');
+      print('🧾 /subscriptions body: ${resp.body}');
+
+      if (resp.statusCode == 200) {
+        final data = json.decode(resp.body);
+        return data['success'] == true;
+      }
+      return false;
+    } catch (e) {
+      print('❌ Error confirming subscription: $e');
+      return false;
     }
   }
 
@@ -147,6 +222,7 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
   @override
   void dispose() {
     _videoController?.dispose();
+    _razorpayService.dispose();
     super.dispose();
   }
 
@@ -229,44 +305,14 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 16),
-
-                  // Refund Information
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.warning.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.warning.withOpacity(0.3),
-                      ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Your subscription is now active. If this was only a test charge, please don’t worry — the amount will be automatically refunded to your original payment method within 3–5 working days.',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textPrimary,
+                      height: 1.5,
                     ),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: AppColors.starGold,
-                          size: 32,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Testing Mode',
-                          style: AppTextStyles.h3.copyWith(
-                            color: AppColors.starGold,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'We are currently testing our payment system. We promise to refund your full amount within 3-5 working days to your original payment source.',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textPrimary,
-                            height: 1.5,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
 
@@ -729,8 +775,32 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
                   // Subscribe button
                   GradientButton(
                     onPressed: () {
-                      print('💳 Processing payment for: ${plan.label}');
-                      _handleSubscriptionSuccess(plan.label);
+                      print('💳 Opening Razorpay for: ${plan.label}');
+                      // Pause video when opening gateway
+                      _videoController?.pause();
+
+                      // Prefill from SharedPreferences (via StorageService) or AuthProvider
+                      final auth = Provider.of<AuthProvider>(
+                        context,
+                        listen: false,
+                      );
+                      final spUser = StorageService.getUserData();
+                      final user = auth.user ?? spUser;
+                      final customerName = user?.profile.name ?? '';
+                      final profilePhone = user?.profile.phoneNumber ?? '';
+                      final contact = profilePhone.isNotEmpty
+                          ? profilePhone
+                          : (user?.phoneNumber ?? '');
+                      final email = user?.email ?? '';
+
+                      _razorpayService.openCheckout(
+                        context: context,
+                        merchantName: 'Baba App',
+                        description: 'Premium Subscription (₹3 one-time)',
+                        customerName: customerName,
+                        contact: contact,
+                        email: email,
+                      );
                     },
                     child: Text(
                       showTrial ? 'Start Free Trial' : 'Subscribe Now',
@@ -821,7 +891,7 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
                         ),
                       ),
                       Text(
-                        '1',
+                        '3',
                         style: AppTextStyles.h1.copyWith(
                           color: AppColors.starGold,
                           fontSize: 48,
@@ -862,8 +932,32 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
                   // Subscribe button
                   GradientButton(
                     onPressed: () {
-                      print('💳 Processing payment for: 1-Day Free Trial');
-                      _handleSubscriptionSuccess('1-Day Free Trial');
+                      print('💳 Opening Razorpay for: 1-Day Trial (₹3)');
+                      // Pause video when opening gateway
+                      _videoController?.pause();
+
+                      // Prefill from SharedPreferences (via StorageService) or AuthProvider
+                      final auth = Provider.of<AuthProvider>(
+                        context,
+                        listen: false,
+                      );
+                      final spUser = StorageService.getUserData();
+                      final user = auth.user ?? spUser;
+                      final customerName = user?.profile.name ?? '';
+                      final profilePhone = user?.profile.phoneNumber ?? '';
+                      final contact = profilePhone.isNotEmpty
+                          ? profilePhone
+                          : (user?.phoneNumber ?? '');
+                      final email = user?.email ?? '';
+
+                      _razorpayService.openCheckout(
+                        context: context,
+                        merchantName: 'Baba App',
+                        description: '1-Day Trial Access (₹3 one-time)',
+                        customerName: customerName,
+                        contact: contact,
+                        email: email,
+                      );
                     },
                     child: Text(
                       'Subscribe Now',
