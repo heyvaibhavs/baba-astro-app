@@ -1,13 +1,18 @@
 /// App constants and configuration
 class AppConstants {
   // App information
-  static const String appName = 'Baba App';
+  static const String appName = 'Jano';
   static const String appVersion = '1.0.0';
+
+  // Feature toggles (testing)
+  // Set to true to use the new tab-based home experience.
+  // Set to false to fall back to legacy HomeScreen.
+  static const bool useHomeTab = false;
 
   // API configuration
   // Local server configuration
-  // static const String baseUrl = 'http://10.253.154.199:3000'; // Local server
-  static const String baseUrl = 'https://learner.netaapp.in'; // Production server
+  static const String baseUrl = 'http://192.168.0.116:3000'; // Local server
+  // static const String baseUrl ='https://learner.netaapp.in'; // Production server
   static const String googleAuthEndpoint = '/api/auth/google';
   static const String onboardingEndpoint = '/api/onboarding/submit';
   static const String userConfigEndpoint = '/api/config/user';

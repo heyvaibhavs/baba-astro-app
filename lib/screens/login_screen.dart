@@ -9,8 +9,9 @@ import '../constants/app_constants.dart';
 import '../services/auth_provider.dart';
 import '../widgets/gradient_button.dart';
 import 'onboarding_screen.dart';
-import 'home_screen.dart';
+import 'main_tab_screen.dart';
 import 'email_login_screen.dart';
+import 'home_screen.dart';
 
 /// Login screen with Google Sign-In
 class LoginScreen extends StatefulWidget {
@@ -112,10 +113,14 @@ class _LoginScreenState extends State<LoginScreen>
             'Login screen: Navigating to HomeScreen',
             name: 'LoginScreen',
           );
-          // Navigate to home - HomeScreen will check premium and show gate if needed
+          // Navigate to selected home implementation
+          final useTab = AppConstants.useHomeTab;
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
+            MaterialPageRoute(
+              builder: (_) =>
+                  useTab ? const MainTabScreen() : const HomeScreen(),
+            ),
           );
         } else {
           developer.log(
@@ -251,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(80),
                                       child: Image.asset(
-                                        'assets/images/ig_transparent_logo.png',
+                                        'assets/images/ig_logo_jano.png',
                                         width: 160,
                                         height: 160,
                                         fit: BoxFit.contain,
@@ -263,7 +268,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                                 // App title
                                 Text(
-                                  'Welcome to Baba App',
+                                  'Welcome to Jano',
                                   style: AppTextStyles.h1.copyWith(
                                     color: AppColors.starGold,
                                   ),

@@ -1,3 +1,4 @@
+import 'package:baba_app/screens/hinid_subscription_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:developer' as developer;
@@ -73,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen>
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => const SubscriptionVideoScreen(),
+          // builder: (_) => HindiSubscriptionScreen(),
           fullscreenDialog: true,
         ),
       );
@@ -109,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen>
       final result = await Navigator.of(context).push<bool>(
         MaterialPageRoute(
           builder: (_) => const SubscriptionVideoScreen(),
+          // builder: (_) => HindiSubscriptionScreen(),
           fullscreenDialog: true,
         ),
       );
@@ -174,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen>
       backgroundColor: AppColors.background,
       appBar: AppBar(
         automaticallyImplyLeading: false, // Disable back button
-        title: const Text('Baba App'),
+        title: const Text(AppConstants.appName),
         backgroundColor: AppColors.surface,
         actions: [
           IconButton(

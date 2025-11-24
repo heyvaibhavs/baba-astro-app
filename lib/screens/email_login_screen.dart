@@ -8,6 +8,7 @@ import '../constants/app_text_styles.dart';
 import '../constants/app_constants.dart';
 import '../services/auth_provider.dart';
 import '../widgets/gradient_button.dart';
+import 'main_tab_screen.dart';
 import 'home_screen.dart';
 
 /// Email/Password login screen for PlayStore testing access
@@ -69,11 +70,14 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
           name: 'EmailLoginScreen',
         );
 
-        // Navigate to home screen and clear navigation stack
+        // Navigate to selected home implementation and clear stack
+        final useTab = AppConstants.useHomeTab;
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-          (route) => false, // Remove all previous routes
+          MaterialPageRoute(
+            builder: (_) => useTab ? const MainTabScreen() : const HomeScreen(),
+          ),
+          (route) => false,
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

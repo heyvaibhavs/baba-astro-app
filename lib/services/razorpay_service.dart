@@ -24,7 +24,7 @@ class RazorpayService {
   /// Opens Razorpay checkout with a fixed ₹3 amount (300 paise)
   void openCheckout({
     required BuildContext context,
-    String merchantName = 'Baba App',
+    String merchantName = 'Jano',
     String description = 'Premium Subscription',
     String? email,
     String? contact,

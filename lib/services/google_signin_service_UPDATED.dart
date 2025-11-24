@@ -11,7 +11,7 @@ import '../utils/token_logger.dart';
 /// Firebase ID tokens that your backend can verify.
 class GoogleSignInService {
   static const String _webClientId =
-      '649888243667-stkada03qhha177idramse0aoic0rc9g.apps.googleusercontent.com';
+      '54513515566-ifj6m40cds0a7u24groknbhhq7r1t6bj.apps.googleusercontent.com';
 
   /// Handles Google Sign-In with Firebase Authentication
   ///

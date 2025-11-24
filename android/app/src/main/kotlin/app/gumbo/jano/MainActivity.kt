@@ -1,4 +1,4 @@
-package com.gumbo.babaapp
+package app.gumbo.jano
 
 import io.flutter.embedding.android.FlutterActivity
 

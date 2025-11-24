@@ -7,6 +7,7 @@ import '../constants/app_constants.dart';
 import '../services/auth_provider.dart';
 import '../services/cities_service.dart';
 import '../widgets/gradient_button.dart';
+import 'main_tab_screen.dart';
 import 'home_screen.dart';
 
 /// Onboarding screen for user profile setup
@@ -102,10 +103,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
 
     if (success && mounted) {
-      // Navigate to home - HomeScreen will check premium and show gate if needed
+      // Navigate based on feature toggle; destination screen will handle premium gate
+      final destination = AppConstants.useHomeTab
+          ? const MainTabScreen()
+          : const HomeScreen();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => destination),
       );
     } else if (authProvider.error != null && mounted) {
       // Check if the error is about duplicate phone number

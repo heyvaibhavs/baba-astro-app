@@ -12,7 +12,7 @@ class GoogleSignInService {
   static final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
     serverClientId:
-        '649888243667-stkada03qhha177idramse0aoic0rc9g.apps.googleusercontent.com',
+        '54513515566-ifj6m40cds0a7u24groknbhhq7r1t6bj.apps.googleusercontent.com',
   );
 
   static final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;

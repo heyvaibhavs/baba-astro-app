@@ -428,7 +428,7 @@ class SettingsScreen extends StatelessWidget {
                   context: context,
                   icon: Icons.info_outline,
                   title: 'About App',
-                  subtitle: 'Learn more about Baba App',
+                  subtitle: 'Learn more about Jano',
                   onTap: () {
                     Navigator.push(
                       context,

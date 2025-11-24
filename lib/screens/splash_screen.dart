@@ -6,8 +6,10 @@ import '../constants/app_text_styles.dart';
 import '../services/auth_provider.dart';
 import '../services/storage_service.dart';
 import 'login_screen.dart';
-import 'home_screen.dart';
+import 'main_tab_screen.dart';
 import 'onboarding_screen.dart';
+import '../constants/app_constants.dart';
+import 'home_screen.dart';
 
 /// Splash screen to handle app initialization
 class SplashScreen extends StatefulWidget {
@@ -105,20 +107,19 @@ class _SplashScreenState extends State<SplashScreen>
 
     if (authProvider.isAuthenticated) {
       if (authProvider.isOnboarded) {
-        print('✅ User authenticated & onboarded - Going to HomeScreen');
+        final useTab = AppConstants.useHomeTab;
         print(
-          '   (HomeScreen will check premium status and show gate if needed)',
+          '✅ User authenticated & onboarded - Going to ${useTab ? 'MainTabScreen' : 'HomeScreen'}',
         );
         developer.log(
-          'User is authenticated and onboarded - navigating to HomeScreen',
+          'User authenticated & onboarded - navigating to ${useTab ? 'MainTabScreen' : 'HomeScreen'}',
           name: 'SplashScreen',
         );
-
-        // User is logged in and onboarded - go to home
-        // HomeScreen will handle premium check in its initState
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          MaterialPageRoute(
+            builder: (_) => useTab ? const MainTabScreen() : const HomeScreen(),
+          ),
         );
       } else {
         print(
@@ -186,7 +187,7 @@ class _SplashScreenState extends State<SplashScreen>
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(60),
                         child: Image.asset(
-                          'assets/images/ig_transparent_logo.png',
+                          'assets/images/ig_logo_jano_splash.png',
                           width: 120,
                           height: 120,
                           fit: BoxFit.contain,
@@ -195,7 +196,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'Baba App',
+                      AppConstants.appName,
                       style: AppTextStyles.h2.copyWith(
                         color: AppColors.starGold,
                         fontWeight: FontWeight.bold,

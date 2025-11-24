@@ -31,7 +31,7 @@ class _DebugScreenState extends State<DebugScreen> {
 
     // App Configuration
     info.writeln('📱 APP CONFIGURATION:');
-    info.writeln('Package Name: com.gumbo.babaapp');
+    info.writeln('Package Name: app.gumbo.jano');
     info.writeln(
       'SHA-1: 06:E4:5F:BA:12:D8:7E:34:71:30:2B:FF:31:02:51:10:FD:E7:FD:15',
     );
@@ -76,7 +76,7 @@ class _DebugScreenState extends State<DebugScreen> {
     info.writeln('google-services.json: ✅ Present');
     info.writeln('Project ID: baba-astro-app');
     info.writeln(
-      'Client ID: 649888243667-hjv7im91btjr4s12p608ns9khn8kumf0.apps.googleusercontent.com',
+      'Client ID: 54513515566-ifj6m40cds0a7u24groknbhhq7r1t6bj.apps.googleusercontent.com',
     );
     info.writeln('');
 

@@ -109,7 +109,7 @@ class _AboutAppScreenState extends State<AboutAppScreen>
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(60),
                               child: Image.asset(
-                                'assets/images/ig_transparent_logo.png',
+                                'assets/images/ig_logo_jano.png',
                                 width: 120,
                                 height: 120,
                                 fit: BoxFit.contain,
@@ -162,9 +162,9 @@ class _AboutAppScreenState extends State<AboutAppScreen>
                     // App description
                     _buildInfoSection(
                       icon: Icons.description,
-                      title: 'About Baba App',
+                      title: 'About Jano',
                       content:
-                          'Baba App is your personal gateway to the cosmos, offering personalized astrological insights, daily horoscopes, birth chart analysis, and relationship compatibility readings. Discover your cosmic potential and navigate life with celestial wisdom.',
+                          'Jano is your personal gateway to the cosmos, offering personalized astrological insights, daily horoscopes, birth chart analysis, and relationship compatibility readings. Discover your cosmic potential and navigate life with celestial wisdom.',
                     ),
 
                     const SizedBox(height: 20),

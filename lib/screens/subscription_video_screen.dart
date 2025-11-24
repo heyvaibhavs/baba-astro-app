@@ -54,21 +54,47 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
           // Initialize Razorpay callbacks
           _razorpayService.init(
             onSuccess: (PaymentSuccessResponse res) async {
-              print('✅ Razorpay Success: ${res.paymentId}');
+              // Log full Razorpay success payload
+              final rpPayId = res.paymentId;
+              final rpOrderId = res.orderId;
+              final rpSignature = res.signature;
+              print('✅ Razorpay Success');
+              print('   • paymentId: $rpPayId');
+              print('   • orderId:   $rpOrderId');
+              print('   • signature: $rpSignature');
+
+              // Generate a manual client payment id (any-string)
+              final manualId =
+                  'manual-${DateTime.now().millisecondsSinceEpoch}';
+
               // Confirm subscription on server before marking premium
-              final ok = await _confirmSubscriptionOnServer(
-                res.paymentId ?? '',
+              final resp = await _confirmSubscriptionOnServerAdvanced(
+                manualPaymentId: manualId,
+                razorpayPaymentId: rpPayId ?? '',
+                razorpayOrderId: rpOrderId,
+                razorpaySignature: rpSignature,
+                amount: 3,
               );
-              if (ok) {
+
+              final success = resp != null && (resp['success'] == true);
+              final refundStatus = resp != null
+                  ? (resp['data'] != null ? resp['data']['refundStatus'] : null)
+                  : null;
+              print(
+                '🧾 Subscription confirm result: success=$success, refundStatus=$refundStatus',
+              );
+
+              if (success) {
                 await _handleSubscriptionSuccess('Premium (₹3)');
               } else {
                 _videoController?.play();
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Unable to activate subscription.'),
-                    ),
-                  );
+                  final msg = (resp != null && resp['message'] is String)
+                      ? resp['message'] as String
+                      : 'Unable to activate subscription.';
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(msg)));
                 }
               }
             },
@@ -97,19 +123,32 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
   }
 
   /// Confirm subscription with backend after successful Razorpay payment
-  Future<bool> _confirmSubscriptionOnServer(String paymentId) async {
+  /// Sends expanded payload including Razorpay identifiers and amount
+  Future<Map<String, dynamic>?> _confirmSubscriptionOnServerAdvanced({
+    required String manualPaymentId,
+    required String razorpayPaymentId,
+    String? razorpayOrderId,
+    String? razorpaySignature,
+    required int amount,
+  }) async {
     try {
-      if (paymentId.isEmpty) return false;
+      if (razorpayPaymentId.isEmpty) return null;
       final auth = Provider.of<AuthProvider>(context, listen: false);
       final token = auth.token;
-      if (token == null || token.isEmpty) return false;
+      if (token == null || token.isEmpty) return null;
 
       final url = Uri.parse('${AppConstants.baseUrl}/api/subscriptions');
-      final body = json.encode({
+      final payload = {
         'plan': 'monthly',
         'force': true,
-        'paymentId': paymentId,
-      });
+        'paymentId': manualPaymentId,
+        'razorpay_payment_id': razorpayPaymentId,
+        'razorpay_order_id': razorpayOrderId,
+        'razorpay_signature': razorpaySignature,
+        'amount': amount,
+      };
+
+      print('➡️ POST /api/subscriptions with payload: ${json.encode(payload)}');
 
       final resp = await http.post(
         url,
@@ -117,20 +156,22 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: body,
+        body: json.encode(payload),
       );
 
       print('🧾 /subscriptions status: ${resp.statusCode}');
       print('🧾 /subscriptions body: ${resp.body}');
 
-      if (resp.statusCode == 200) {
-        final data = json.decode(resp.body);
-        return data['success'] == true;
+      if (resp.statusCode == 200 ||
+          resp.statusCode == 400 ||
+          resp.statusCode == 409) {
+        // Return parsed JSON for caller to interpret success/message
+        return json.decode(resp.body) as Map<String, dynamic>;
       }
-      return false;
+      return null;
     } catch (e) {
       print('❌ Error confirming subscription: $e');
-      return false;
+      return null;
     }
   }
 
@@ -307,7 +348,7 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Your subscription is now active. If this was only a test charge, please don’t worry — the amount will be automatically refunded to your original payment method within 3–5 working days.',
+                    'Your subscription is now active. This was a test payment, and the amount will be automatically refunded to your original payment method within 3–5 working days.',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textPrimary,
                       height: 1.5,
@@ -795,7 +836,7 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
 
                       _razorpayService.openCheckout(
                         context: context,
-                        merchantName: 'Baba App',
+                        merchantName: 'Jano',
                         description: 'Premium Subscription (₹3 one-time)',
                         customerName: customerName,
                         contact: contact,
@@ -952,7 +993,7 @@ class _SubscriptionVideoScreenState extends State<SubscriptionVideoScreen> {
 
                       _razorpayService.openCheckout(
                         context: context,
-                        merchantName: 'Baba App',
+                        merchantName: 'Jano',
                         description: '1-Day Trial Access (₹3 one-time)',
                         customerName: customerName,
                         contact: contact,
