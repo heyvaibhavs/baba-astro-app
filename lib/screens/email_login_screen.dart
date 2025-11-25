@@ -42,7 +42,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
     final password = _passwordController.text.trim();
 
     // Check credentials
-    if (email != 'babaApp@test.com' || password != 'Vaibhav@123') {
+    if (email != 'JanoApp@test.com' || password != 'Vaibhav@123') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(

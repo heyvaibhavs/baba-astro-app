@@ -470,7 +470,7 @@ class SettingsScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const WebViewScreen(
-                          url: 'https://gumbotech.in/Baba-app-privacy-policy',
+                          url: 'https://gumbotech.in/Jano-app-privacy-policy',
                           title: 'Privacy Policy',
                         ),
                       ),
@@ -492,7 +492,7 @@ class SettingsScreen extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) => const WebViewScreen(
                           url:
-                              'https://gumbotech.in/Baba-app-terms-and-conditions',
+                              'https://gumbotech.in/Jano-app-terms-and-conditions',
                           title: 'Terms & Conditions',
                         ),
                       ),
@@ -514,7 +514,7 @@ class SettingsScreen extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) => const WebViewScreen(
                           url:
-                              'https://gumbotech.in/Baba-app-refund-cancellation-policy',
+                              'https://gumbotech.in/Jano-app-refund-cancellation-policy',
                           title: 'Refund Policy',
                         ),
                       ),
@@ -562,7 +562,7 @@ class SettingsScreen extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) => const WebViewScreen(
                           url:
-                              'https://gumbotech.in/Baba-app-account-deletion-policy',
+                              'https://gumbotech.in/Jano-app-account-deletion-policy',
                           title: 'Account Deletion',
                         ),
                       ),
